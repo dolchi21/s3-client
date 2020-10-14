@@ -3,6 +3,7 @@ const H = require('./s3-helpers')
 
 module.exports = function S3Wrapper(s3) {
     return {
+        copy: H.copy.bind(null, s3),
         get: H.get.bind(null, s3),
         exists: H.exists.bind(null, s3),
         list: H.list.bind(null, s3),
@@ -13,6 +14,7 @@ module.exports = function S3Wrapper(s3) {
 }
 function Bucket(s3, bucketName) {
     return {
+        copy: H.copy.bind(null, s3, bucketName),
         get: H.get.bind(null, s3, bucketName),
         exists: H.exists.bind(null, s3, bucketName),
         list: H.list.bind(null, s3, bucketName),

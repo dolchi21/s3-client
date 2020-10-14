@@ -1,4 +1,18 @@
 //@ts-check
+exports.copy = function copy(s3, bucket, source, target) {
+    return new Promise((resolve, reject) => {
+        const params = {
+            Bucket: bucket,
+            CopySource: `/${bucket}/${source}`,
+            Key: target,
+        }
+        s3.copyObject(params, (err, data) => {
+            if (err) return reject(err)
+            resolve(data)
+        })
+    })
+}
+
 exports.exists = function exists(s3, bucket, key) {
     return new Promise((resolve, reject) => {
         var params = {
