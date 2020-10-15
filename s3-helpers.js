@@ -1,5 +1,5 @@
 //@ts-check
-exports.copy = function copy(s3, bucket, source, target) {
+const copy = exports.copy = function copy(s3, bucket, source, target) {
     return new Promise((resolve, reject) => {
         const params = {
             Bucket: bucket,
@@ -7,6 +7,20 @@ exports.copy = function copy(s3, bucket, source, target) {
             Key: target,
         }
         s3.copyObject(params, (err, data) => {
+            if (err) return reject(err)
+            resolve(data)
+        })
+    })
+}
+
+exports.delete = async function deleteObject(s3, bucket, key) {
+    await copy(s3, bucket, key, 'deleted/' + key)
+    const params = {
+        Bucket: bucket,
+        Key: key
+    }
+    return new Promise((resolve, reject) => {
+        s3.deleteObject(params, (err, data) => {
             if (err) return reject(err)
             resolve(data)
         })
