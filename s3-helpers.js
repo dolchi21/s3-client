@@ -69,8 +69,15 @@ exports.head = function head(s3, bucket, key) {
             Key: key
         }
         s3.headObject(params, (err, data) => {
-            if (err) return reject(err)
-            return resolve(data.Body)
+            if (err) {
+                switch (err.code) {
+                    case 'NotFound':
+                        return resolve(null)
+                    default:
+                        return reject(err)
+                }
+            }
+            return resolve(data)
         })
     })
 }
