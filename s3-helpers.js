@@ -104,17 +104,16 @@ exports.stream = function stream(s3, bucket, key) {
 }
 
 exports.upload = function upload(s3, bucket, key, file, options = {}) {
-    var mime = require('mime-types')
-
+    const mime = require('mime-types')
     return new Promise((resolve, reject) => {
-        var params = {
+        const params = Object.assign({
             Bucket: bucket,
             Key: key,
             Body: file,
             ACL: options.ACL || 'authenticated-read',
-            ContentDisposition: options.ContentDisposition || 'inline',
-            ContentType: options.ContentType || mime.lookup(key)
-        }
+            ContentDisposition: 'inline',
+            ContentType: mime.lookup(key)
+        }, options)
         return s3.upload(params, function (err, data) {
             if (err) return reject(err)
             return resolve(data)
