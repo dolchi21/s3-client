@@ -62,6 +62,19 @@ exports.get = function get(s3, bucket, key) {
     })
 }
 
+exports.head = function head(s3, bucket, key) {
+    return new Promise((resolve, reject) => {
+        var params = {
+            Bucket: bucket,
+            Key: key
+        }
+        s3.headObject(params, (err, data) => {
+            if (err) return reject(err)
+            return resolve(data.Body)
+        })
+    })
+}
+
 exports.list = function list(s3, bucket, prefix, options = {}) {
     return new Promise((resolve, reject) => {
         var params = Object.assign({
