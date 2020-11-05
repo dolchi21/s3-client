@@ -132,7 +132,7 @@ exports.upload = function upload(s3, bucket, key, file, options = {}) {
             Body: file,
             ACL: options.ACL || 'authenticated-read',
             ContentDisposition: 'inline',
-            ContentType: mime.lookup(key)
+            ContentType: mime.lookup(key) || 'application/octet-stream'
         }, options)
         return s3.upload(params, function (err, data) {
             if (err) return reject(err)
