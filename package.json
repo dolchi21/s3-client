@@ -16,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/dolchi21/s3-client/issues"
   },
-  "homepage": "https://github.com/dolchi21/s3-client#readme"
+  "homepage": "https://github.com/dolchi21/s3-client#readme",
+  "devDependencies": {
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.817.0"
+  }
 }
