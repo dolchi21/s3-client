@@ -15,6 +15,9 @@ export class Bucket {
     head(key: string) {
         return Functions.head(this.s3, this.bucket, key)
     }
+    list(prefix: string, options?: {}) {
+        return Functions.list(this.s3, this.bucket, prefix, options)
+    }
     upload(key: string, file: any) {
         return Functions.upload(this.s3, this.bucket, key, file)
     }

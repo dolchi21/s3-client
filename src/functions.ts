@@ -63,7 +63,7 @@ export function get(s3: AWS.S3, bucket: string, key: string) {
     })
 }
 
-export function head(s3: AWS.S3, bucket: string, key: string) {
+export function head(s3: AWS.S3, bucket: string, key: string): Promise<AWS.S3.HeadObjectOutput | null> {
     return new Promise((resolve, reject) => {
         var params = {
             Bucket: bucket,
@@ -83,7 +83,23 @@ export function head(s3: AWS.S3, bucket: string, key: string) {
     })
 }
 
-export function list(s3: AWS.S3, bucket: string, prefix: string, options = {}) {
+export async function list(s3: AWS.S3, bucket: string, prefix: string, options = {}) {
+    let state = {
+        keys: [],
+        isTruncated: true,
+        nextParams: null
+    }
+    while (state.isTruncated) {
+        const opts = Object.assign({}, options, state.nextParams)
+        const res = await list1K(s3, bucket, prefix, opts) as any
+        state.keys = state.keys.concat(res.keys).filter((e, i, arr) => arr.indexOf(e) === i)
+        state.isTruncated = res.isTruncated
+        state.nextParams = res.nextParams
+    }
+    return state.keys as string[]
+}
+
+export function list1K(s3: AWS.S3, bucket: string, prefix: string, options = {}) {
     return new Promise((resolve, reject) => {
         var params = Object.assign({
             Bucket: bucket,
