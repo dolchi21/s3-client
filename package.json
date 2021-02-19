@@ -8,7 +8,7 @@
     "build": "tsc",
     "dev": "tsc -w",
     "prepack": "npm run build",
-    "postinstall": "npm run build",
+    "postinstall": "npm i && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
