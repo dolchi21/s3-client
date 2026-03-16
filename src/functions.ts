@@ -148,7 +148,7 @@ export function upload(s3: AWS.S3, bucket: string, key: string, file: any, optio
             Bucket: bucket,
             Key: key,
             Body: file,
-            ACL: 'authenticated-read',
+            //ACL: 'private',
             ContentDisposition: 'inline',
             ...options
         }
