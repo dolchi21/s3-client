@@ -134,7 +134,7 @@ exports.upload = function upload(s3, bucket, key, file, options = {}) {
             Bucket: bucket,
             Key: key,
             Body: file,
-            ACL: 'authenticated-read',
+            //ACL: 'private',
             ContentDisposition: 'inline'
         }, opts, options)
         return s3.upload(params, function (err, data) {
