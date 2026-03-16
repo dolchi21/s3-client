@@ -158,3 +158,16 @@ export function upload(s3: AWS.S3, bucket: string, key: string, file: any, optio
         })
     })
 }
+
+export function signedURL(s3: AWS.S3, bucket: string, key: string) {
+    return new Promise((resolve, reject) => {
+        const params = {
+            Bucket: bucket,
+            Key: key
+        }
+        s3.getSignedUrl('getObject', params, (err, url) => {
+            if (err) return reject(err)
+            resolve(url)
+        })
+    })
+}

@@ -21,6 +21,9 @@ export class Bucket {
     upload(key: string, file: any) {
         return Functions.upload(this.s3, this.bucket, key, file)
     }
+    signedURL(key: string) {
+        return Functions.signedURL(this.s3, this.bucket, key)
+    }
 }
 
 export const S3 = Functions
