@@ -10,6 +10,7 @@ module.exports = function S3Wrapper(s3) {
         get: H.get.bind(null, s3),
         head: H.head.bind(null, s3),
         list: H.list.bind(null, s3),
+        signedURL: H.signedURL.bind(null, s3),
         stream: H.stream.bind(null, s3),
         upload: H.upload.bind(null, s3),
     }
@@ -22,6 +23,7 @@ function Bucket(s3, bucketName) {
         get: H.get.bind(null, s3, bucketName),
         head: H.head.bind(null, s3, bucketName),
         list: H.list.bind(null, s3, bucketName),
+        signedURL: H.signedURL.bind(null, s3, bucketName),
         stream: H.stream.bind(null, s3, bucketName),
         upload: H.upload.bind(null, s3, bucketName),
     }
