@@ -21,8 +21,8 @@ export class Bucket {
     list(prefix: string, options?: {}) {
         return Functions.list(this.s3, this.bucket, prefix, options)
     }
-    upload(key: string, file: any) {
-        return Functions.upload(this.s3, this.bucket, key, file)
+    upload(key: string, file: any, options?: {}) {
+        return Functions.upload(this.s3, this.bucket, key, file, options)
     }
     signedURL(key: string) {
         return Functions.signedURL(this.s3, this.bucket, key)
