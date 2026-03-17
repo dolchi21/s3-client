@@ -9,6 +9,9 @@ export class Bucket {
     delete(key: string) {
         return Functions.deleteObject(this.s3, this.bucket, key)
     }
+    exists(key: string) {
+        return Functions.exists(this.s3, this.bucket, key)
+    }
     get(key: string) {
         return Functions.get(this.s3, this.bucket, key)
     }
