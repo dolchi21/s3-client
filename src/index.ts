@@ -12,6 +12,9 @@ export class Bucket {
     exists(key: string) {
         return Functions.exists(this.s3, this.bucket, key)
     }
+    copy(key: string, target: string) {
+        return Functions.copy(this.s3, this.bucket, key, target)
+    }
     get(key: string) {
         return Functions.get(this.s3, this.bucket, key)
     }
