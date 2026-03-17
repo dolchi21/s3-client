@@ -24,6 +24,9 @@ export class Bucket {
     signedURL(key: string) {
         return Functions.signedURL(this.s3, this.bucket, key)
     }
+    stream(key: string) {
+        return Functions.stream(this.s3, this.bucket, key)
+    }
 }
 
 export const S3 = Functions
