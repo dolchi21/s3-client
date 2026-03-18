@@ -9,6 +9,12 @@ export class Bucket {
     delete(key: string) {
         return Functions.deleteObject(this.s3, this.bucket, key)
     }
+    exists(key: string) {
+        return Functions.exists(this.s3, this.bucket, key)
+    }
+    copy(key: string, target: string) {
+        return Functions.copy(this.s3, this.bucket, key, target)
+    }
     get(key: string) {
         return Functions.get(this.s3, this.bucket, key)
     }
@@ -18,8 +24,14 @@ export class Bucket {
     list(prefix: string, options?: {}) {
         return Functions.list(this.s3, this.bucket, prefix, options)
     }
-    upload(key: string, file: any) {
-        return Functions.upload(this.s3, this.bucket, key, file)
+    upload(key: string, file: any, options?: {}) {
+        return Functions.upload(this.s3, this.bucket, key, file, options)
+    }
+    signedURL(key: string) {
+        return Functions.signedURL(this.s3, this.bucket, key)
+    }
+    stream(key: string) {
+        return Functions.stream(this.s3, this.bucket, key)
     }
 }
 

@@ -148,13 +148,26 @@ export function upload(s3: AWS.S3, bucket: string, key: string, file: any, optio
             Bucket: bucket,
             Key: key,
             Body: file,
-            ACL: 'authenticated-read',
+            //ACL: 'private',
             ContentDisposition: 'inline',
             ...options
         }
         return s3.upload(params, function (err, data) {
             if (err) return reject(err)
             return resolve(data)
+        })
+    })
+}
+
+export function signedURL(s3: AWS.S3, bucket: string, key: string) {
+    return new Promise((resolve, reject) => {
+        const params = {
+            Bucket: bucket,
+            Key: key
+        }
+        s3.getSignedUrl('getObject', params, (err, url) => {
+            if (err) return reject(err)
+            resolve(url)
         })
     })
 }
