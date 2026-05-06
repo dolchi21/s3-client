@@ -7,7 +7,6 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "postinstall": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,10 +21,10 @@
   },
   "homepage": "https://github.com/dolchi21/s3-client#readme",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.640.0",
-    "typescript": "^5.6.0"
+    "@aws-sdk/client-s3": "^3.640.0"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0"
+    "@types/node": "^25.6.0",
+    "typescript": "^5.6.0"
   }
 }
