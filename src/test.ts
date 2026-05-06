@@ -1,23 +1,21 @@
-import { S3Client } from '@aws-sdk/client-s3'
 import { Bucket } from './index'
 
 const bucketName = process.env.BUCKET_NAME
 const objectKey = process.env.TEST_OBJECT_KEY || 'test-object.txt'
 const region = process.env.AWS_REGION || 'us-east-1'
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.AWS_KEY
-const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET
-
-if (!bucketName) {
-    console.error('Error: set BUCKET_NAME environment variable')
-    process.exit(1)
-}
-
-if (!accessKeyId || !secretAccessKey) {
-    console.error('Error: set AWS_ACCESS_KEY_ID/AWS_KEY and AWS_SECRET_ACCESS_KEY/AWS_SECRET environment variables')
-    process.exit(1)
-}
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
 
 async function run() {
+    if (!bucketName) {
+        console.error('Error: set BUCKET_NAME environment variable')
+        process.exit(1)
+    }
+
+    if (!accessKeyId || !secretAccessKey) {
+        console.error('Error: set AWS_ACCESS_KEY_ID/AWS_KEY and AWS_SECRET_ACCESS_KEY/AWS_SECRET environment variables')
+        process.exit(1)
+    }
     const bucket = new Bucket({ accessKeyId, secretAccessKey, region }, bucketName)
     const metadata = await bucket.head(objectKey)
 
