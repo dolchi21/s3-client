@@ -19,6 +19,9 @@ async function run() {
     const bucket = new Bucket({ accessKeyId, secretAccessKey, region }, bucketName)
     const metadata = await bucket.head(objectKey)
 
+    const url = await bucket.signedURL(objectKey)
+    console.log('Signed URL:', url)
+
     if (!metadata) {
         console.log(`Bucket.head: object \"${objectKey}\" not found in bucket \"${bucketName}\"`)
         process.exit(1)
