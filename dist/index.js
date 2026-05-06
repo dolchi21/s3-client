@@ -39,7 +39,14 @@ const Functions = __importStar(require("./functions"));
 class Bucket {
     constructor(s3, bucket) {
         if (typeof s3 === 'object' && 'accessKeyId' in s3) {
-            this.s3 = new client_s3_1.S3Client(s3);
+            const options = {
+                region: s3.region,
+                credentials: {
+                    accessKeyId: s3.accessKeyId,
+                    secretAccessKey: s3.secretAccessKey,
+                }
+            };
+            this.s3 = new client_s3_1.S3Client(options);
         }
         else {
             this.s3 = s3;
