@@ -9,6 +9,7 @@ import {
     HeadObjectOutput,
     PutObjectCommandInput,
 } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 export function copy(s3: S3Client, bucket: string, source: string, target: string) {
     const params = {
@@ -138,9 +139,17 @@ export function upload(s3: S3Client, bucket: string, key: string, file: any, opt
         Bucket: bucket,
         Key: key,
         Body: file,
-        ACL: 'authenticated-read',
+        //ACL: 'private',
         ContentDisposition: 'inline',
         ...options,
     }
     return s3.send(new PutObjectCommand(params))
+}
+
+export function signedURL(s3: S3Client, bucket: string, key: string, expiresIn = 900) {
+    const command = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+    })
+    return getSignedUrl(s3, command, { expiresIn })
 }
