@@ -22,5 +22,5 @@ export declare function list1K(s3: S3Client, bucket: string, prefix: string, opt
 }>;
 export declare function stream(s3: S3Client, bucket: string, key: string): Promise<import("@smithy/types").StreamingBlobPayloadOutputTypes | undefined>;
 export declare function upload(s3: S3Client, bucket: string, key: string, file: any, options?: {}): Promise<import("@aws-sdk/client-s3").PutObjectCommandOutput>;
-export declare function signedURL(s3: S3Client, bucket: string, key: string, expiresIn?: number): any;
+export declare function signedURL(s3: S3Client, bucket: string, key: string, expiresIn?: number): Promise<string>;
 //# sourceMappingURL=functions.d.ts.map

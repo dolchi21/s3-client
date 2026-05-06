@@ -16,7 +16,7 @@ export declare class Bucket {
     head(key: string): Promise<import("@aws-sdk/client-s3").HeadObjectOutput | null>;
     list(prefix: string, options?: {}): Promise<string[]>;
     upload(key: string, file: any, options?: {}): Promise<import("@aws-sdk/client-s3").PutObjectCommandOutput>;
-    signedURL(key: string): any;
+    signedURL(key: string): Promise<string>;
     stream(key: string): Promise<import("@smithy/types").StreamingBlobPayloadOutputTypes | undefined>;
 }
 export declare const S3: typeof Functions;
