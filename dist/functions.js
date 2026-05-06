@@ -18,7 +18,9 @@ exports.list = list;
 exports.list1K = list1K;
 exports.stream = stream;
 exports.upload = upload;
+exports.signedURL = signedURL;
 const client_s3_1 = require("@aws-sdk/client-s3");
+const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
 function copy(s3, bucket, source, target) {
     const params = {
         Bucket: bucket,
@@ -139,7 +141,16 @@ function stream(s3, bucket, key) {
     });
 }
 function upload(s3, bucket, key, file, options = {}) {
-    const params = Object.assign({ Bucket: bucket, Key: key, Body: file, ACL: 'authenticated-read', ContentDisposition: 'inline' }, options);
+    const params = Object.assign({ Bucket: bucket, Key: key, Body: file, 
+        //ACL: 'private',
+        ContentDisposition: 'inline' }, options);
     return s3.send(new client_s3_1.PutObjectCommand(params));
+}
+function signedURL(s3, bucket, key, expiresIn = 900) {
+    const command = new client_s3_1.GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+    });
+    return (0, s3_request_presigner_1.getSignedUrl)(s3, command, { expiresIn });
 }
 //# sourceMappingURL=functions.js.map

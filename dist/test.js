@@ -27,6 +27,8 @@ function run() {
         }
         const bucket = new index_1.Bucket({ accessKeyId, secretAccessKey, region }, bucketName);
         const metadata = yield bucket.head(objectKey);
+        const url = yield bucket.signedURL(objectKey);
+        console.log('Signed URL:', url);
         if (!metadata) {
             console.log(`Bucket.head: object \"${objectKey}\" not found in bucket \"${bucketName}\"`);
             process.exit(1);

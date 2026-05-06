@@ -49,6 +49,12 @@ class Bucket {
     delete(key) {
         return Functions.deleteObject(this.s3, this.bucket, key);
     }
+    exists(key) {
+        return Functions.exists(this.s3, this.bucket, key);
+    }
+    copy(key, target) {
+        return Functions.copy(this.s3, this.bucket, key, target);
+    }
     get(key) {
         return Functions.get(this.s3, this.bucket, key);
     }
@@ -58,8 +64,14 @@ class Bucket {
     list(prefix, options) {
         return Functions.list(this.s3, this.bucket, prefix, options);
     }
-    upload(key, file) {
-        return Functions.upload(this.s3, this.bucket, key, file);
+    upload(key, file, options) {
+        return Functions.upload(this.s3, this.bucket, key, file, options);
+    }
+    signedURL(key) {
+        return Functions.signedURL(this.s3, this.bucket, key);
+    }
+    stream(key) {
+        return Functions.stream(this.s3, this.bucket, key);
     }
 }
 exports.Bucket = Bucket;

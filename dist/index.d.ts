@@ -10,10 +10,14 @@ export declare class Bucket {
     s3: S3Client;
     constructor(s3: S3Client | S3Config, bucket: string);
     delete(key: string): Promise<import("@aws-sdk/client-s3").DeleteObjectCommandOutput>;
+    exists(key: string): Promise<boolean>;
+    copy(key: string, target: string): Promise<import("@aws-sdk/client-s3").CopyObjectCommandOutput>;
     get(key: string): Promise<import("@smithy/types").StreamingBlobPayloadOutputTypes | undefined>;
     head(key: string): Promise<import("@aws-sdk/client-s3").HeadObjectOutput | null>;
     list(prefix: string, options?: {}): Promise<string[]>;
-    upload(key: string, file: any): Promise<import("@aws-sdk/client-s3").PutObjectCommandOutput>;
+    upload(key: string, file: any, options?: {}): Promise<import("@aws-sdk/client-s3").PutObjectCommandOutput>;
+    signedURL(key: string): any;
+    stream(key: string): Promise<import("@smithy/types").StreamingBlobPayloadOutputTypes | undefined>;
 }
 export declare const S3: typeof Functions;
 export {};
