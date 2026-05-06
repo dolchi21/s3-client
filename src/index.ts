@@ -13,7 +13,14 @@ export class Bucket {
 
     constructor(s3: S3Client | S3Config, bucket: string) {
         if (typeof s3 === 'object' && 'accessKeyId' in s3) {
-            this.s3 = new S3Client(s3)
+            const options = {
+                region: s3.region,
+                credentials: {
+                    accessKeyId: s3.accessKeyId,
+                    secretAccessKey: s3.secretAccessKey,
+                }
+            }
+            this.s3 = new S3Client(options)
         } else {
             this.s3 = s3
         }
