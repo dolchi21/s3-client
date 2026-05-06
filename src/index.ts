@@ -1,10 +1,22 @@
 import { S3Client } from '@aws-sdk/client-s3'
 import * as Functions from './functions'
+
+type S3Config = {
+    accessKeyId: string
+    secretAccessKey: string
+    region: string
+}
+
 export class Bucket {
     bucket: string
     s3: S3Client
-    constructor(s3: S3Client, bucket: string) {
-        this.s3 = s3
+
+    constructor(s3: S3Client | S3Config, bucket: string) {
+        if (typeof s3 === 'object' && 'accessKeyId' in s3) {
+            this.s3 = new S3Client(s3)
+        } else {
+            this.s3 = s3
+        }
         this.bucket = bucket
     }
     delete(key: string) {

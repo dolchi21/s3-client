@@ -18,8 +18,7 @@ if (!accessKeyId || !secretAccessKey) {
 }
 
 async function run() {
-    const client = new S3Client({ region, credentials: { accessKeyId, secretAccessKey } })
-    const bucket = new Bucket(client, bucketName)
+    const bucket = new Bucket({ accessKeyId, secretAccessKey, region }, bucketName)
     const metadata = await bucket.head(objectKey)
 
     if (!metadata) {
