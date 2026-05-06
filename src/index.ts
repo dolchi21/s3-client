@@ -1,8 +1,9 @@
+import { S3Client } from '@aws-sdk/client-s3'
 import * as Functions from './functions'
 export class Bucket {
     bucket: string
-    s3: AWS.S3
-    constructor(s3: AWS.S3, bucket: string) {
+    s3: S3Client
+    constructor(s3: S3Client, bucket: string) {
         this.s3 = s3
         this.bucket = bucket
     }
