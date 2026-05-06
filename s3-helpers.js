@@ -143,3 +143,16 @@ exports.upload = function upload(s3, bucket, key, file, options = {}) {
         })
     })
 }
+
+exports.signedURL = (s3, bucket, key) => {
+    return new Promise((resolve, reject) => {
+        const params = {
+            Bucket: bucket,
+            Key: key
+        }
+        s3.getSignedUrl('getObject', params, (err, url) => {
+            if (err) return reject(err)
+            resolve(url)
+        })
+    })
+}
