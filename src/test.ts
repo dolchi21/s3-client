@@ -1,18 +1,41 @@
-import AWS from 'aws-sdk'
-import { Bucket, S3 } from './index'
+import { Bucket } from './index'
 
-async function main() {
-    const bucket = new Bucket(new AWS.S3(), 'file-forwarder-charlie')
-    const res = await bucket.list('bkp/2021/01/29/ADB')
-    const keys = await Promise.all(res.map(async (e: string) => {
-        const info = await bucket.head(e)
-        if (info?.Metadata?.key) {
-            const info2 = await bucket.get(info?.Metadata?.key)
-            return info2
-        }
-        return info
-    }))
-    console.log(res, keys)
+const bucketName = process.env.BUCKET_NAME
+const objectKey = process.env.TEST_OBJECT_KEY || 'test-object.txt'
+const region = process.env.AWS_REGION || 'us-east-1'
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+
+async function run() {
+    if (!bucketName) {
+        console.error('Error: set BUCKET_NAME environment variable')
+        process.exit(1)
+    }
+
+    if (!accessKeyId || !secretAccessKey) {
+        console.error('Error: set AWS_ACCESS_KEY_ID/AWS_KEY and AWS_SECRET_ACCESS_KEY/AWS_SECRET environment variables')
+        process.exit(1)
+    }
+    const bucket = new Bucket({ accessKeyId, secretAccessKey, region }, bucketName)
+    const metadata = await bucket.head(objectKey)
+
+    const url = await bucket.signedURL(objectKey)
+    console.log('Signed URL:', url)
+
+    if (!metadata) {
+        console.log(`Bucket.head: object \"${objectKey}\" not found in bucket \"${bucketName}\"`)
+        process.exit(1)
+    }
+
+    console.log(`Bucket.head: object \"${objectKey}\" exists in bucket \"${bucketName}\"`)
+    console.log('Metadata:')
+    console.log('  LastModified:', metadata.LastModified)
+    console.log('  ContentLength:', metadata.ContentLength)
+    console.log('  ETag:', metadata.ETag)
 }
 
-main()
+run().catch((error) => {
+    console.error('Bucket.head test failed:')
+    console.error(error)
+    process.exit(1)
+})

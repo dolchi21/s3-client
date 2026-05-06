@@ -1,173 +1,155 @@
-import AWS from 'aws-sdk'
+import {
+    S3Client,
+    CopyObjectCommand,
+    DeleteObjectCommand,
+    HeadObjectCommand,
+    GetObjectCommand,
+    ListObjectsV2Command,
+    PutObjectCommand,
+    HeadObjectOutput,
+    PutObjectCommandInput,
+} from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
-export function copy(s3: AWS.S3, bucket: string, source: string, target: string) {
-    return new Promise((resolve, reject) => {
-        const params = {
-            Bucket: bucket,
-            CopySource: `/${bucket}/${source}`,
-            Key: target,
-        }
-        s3.copyObject(params, (err, data) => {
-            if (err) return reject(err)
-            resolve(data)
-        })
-    })
+export function copy(s3: S3Client, bucket: string, source: string, target: string) {
+    const params = {
+        Bucket: bucket,
+        CopySource: `/${bucket}/${source}`,
+        Key: target,
+    }
+    return s3.send(new CopyObjectCommand(params))
 }
 
-export async function deleteObject(s3: AWS.S3, bucket: string, key: string) {
+export async function deleteObject(s3: S3Client, bucket: string, key: string) {
     await copy(s3, bucket, key, 'deleted/' + key)
     const params = {
         Bucket: bucket,
-        Key: key
+        Key: key,
     }
-    return new Promise((resolve, reject) => {
-        s3.deleteObject(params, (err, data) => {
-            if (err) return reject(err)
-            resolve(data)
-        })
-    })
+    return s3.send(new DeleteObjectCommand(params))
 }
 
-export function exists(s3: AWS.S3, bucket: string, key: string) {
-    return new Promise((resolve, reject) => {
-        var params = {
-            Bucket: bucket,
-            Key: key
+export async function exists(s3: S3Client, bucket: string, key: string) {
+    const params = {
+        Bucket: bucket,
+        Key: key,
+    }
+
+    try {
+        await s3.send(new HeadObjectCommand(params))
+        return true
+    } catch (err: any) {
+        if (err?.$metadata?.httpStatusCode === 404 || err?.name === 'NotFound') {
+            return false
         }
-        s3.headObject(params, function cb(err, data) {
-            if (err) {
-                switch (err.statusCode) {
-                    case 404:
-                        return resolve(false)
-                    default:
-                        return reject(err)
-                }
-            }
-
-            return !data ? resolve(false) : resolve(true)
-
-        })
-    })
+        throw err
+    }
 }
 
-export function get(s3: AWS.S3, bucket: string, key: string) {
-    return new Promise((resolve, reject) => {
-        var params = {
-            Bucket: bucket,
-            Key: key
+export async function get(s3: S3Client, bucket: string, key: string) {
+    const params = {
+        Bucket: bucket,
+        Key: key,
+    }
+    const data = await s3.send(new GetObjectCommand(params))
+    return data.Body
+}
+
+export async function head(s3: S3Client, bucket: string, key: string): Promise<HeadObjectOutput | null> {
+    const params = {
+        Bucket: bucket,
+        Key: key,
+    }
+
+    try {
+        return await s3.send(new HeadObjectCommand(params))
+    } catch (err: any) {
+        if (err?.name === 'NotFound' || err?.$metadata?.httpStatusCode === 404) {
+            return null
         }
-        s3.getObject(params, (err, data) => {
-            if (err) return reject(err)
-            return resolve(data.Body)
-        })
-    })
+        throw err
+    }
 }
 
-export function head(s3: AWS.S3, bucket: string, key: string): Promise<AWS.S3.HeadObjectOutput | null> {
-    return new Promise((resolve, reject) => {
-        var params = {
-            Bucket: bucket,
-            Key: key
-        }
-        s3.headObject(params, (err, data) => {
-            if (err) {
-                switch (err.code) {
-                    case 'NotFound':
-                        return resolve(null)
-                    default:
-                        return reject(err)
-                }
-            }
-            return resolve(data)
-        })
-    })
-}
-
-export async function list(s3: AWS.S3, bucket: string, prefix: string, options = {}) {
+export async function list(s3: S3Client, bucket: string, prefix: string, options = {}) {
     let state = {
-        keys: [],
+        keys: [] as string[],
         isTruncated: true,
-        nextParams: null
+        nextParams: null as Record<string, any> | null,
     }
+
     while (state.isTruncated) {
         const opts = Object.assign({}, options, state.nextParams)
-        const res = await list1K(s3, bucket, prefix, opts) as any
-        state.keys = state.keys.concat(res.keys).filter((e, i, arr) => arr.indexOf(e) === i)
+        const res = (await list1K(s3, bucket, prefix, opts)) as any
+        state.keys = state.keys
+            .concat(res.keys)
+            .filter((e, i, arr) => arr.indexOf(e) === i)
         state.isTruncated = res.isTruncated
         state.nextParams = res.nextParams
     }
-    return state.keys as string[]
+
+    return state.keys
 }
 
-export function list1K(s3: AWS.S3, bucket: string, prefix: string, options = {}) {
-    return new Promise((resolve, reject) => {
-        var params = Object.assign({
+export function list1K(s3: S3Client, bucket: string, prefix: string, options = {}) {
+    const params = Object.assign(
+        {
             Bucket: bucket,
-            Prefix: prefix
-        }, options)
-        return s3.listObjectsV2(params, (err, data) => {
-            if (err) return reject(err)
+            Prefix: prefix,
+        },
+        options
+    )
 
-            var { ContinuationToken, KeyCount, IsTruncated, MaxKeys, NextContinuationToken } = data
+    return s3.send(new ListObjectsV2Command(params)).then((data) => {
+        const { ContinuationToken, KeyCount, IsTruncated, MaxKeys, NextContinuationToken } = data
 
-            let nextParams
-            if (IsTruncated) {
-                nextParams = {
-                    ...params,
-                    ContinuationToken: NextContinuationToken
-                }
+        let nextParams = null
+        if (IsTruncated) {
+            nextParams = {
+                ...params,
+                ContinuationToken: NextContinuationToken,
             }
+        }
 
-            var res = {
-                keys: data.Contents?.map(Content => Content.Key),
-                data: {
-                    ContinuationToken,
-                    KeyCount, MaxKeys
-                },
-                keyCount: KeyCount,
-                isTruncated: IsTruncated,
-                nextParams
-            }
-
-            resolve(res)
-        })
+        return {
+            keys: data.Contents?.map((Content) => Content.Key),
+            data: {
+                ContinuationToken,
+                KeyCount,
+                MaxKeys,
+            },
+            keyCount: KeyCount,
+            isTruncated: IsTruncated,
+            nextParams,
+        }
     })
 }
 
-export function stream(s3: AWS.S3, bucket: string, key: string) {
-    var params = {
+export async function stream(s3: S3Client, bucket: string, key: string) {
+    const params = {
         Bucket: bucket,
-        Key: key
+        Key: key,
     }
-    return s3.getObject(params).createReadStream()
+    const data = await s3.send(new GetObjectCommand(params))
+    return data.Body
 }
 
-export function upload(s3: AWS.S3, bucket: string, key: string, file: any, options = {}) {
-    return new Promise((resolve, reject) => {
-        const params: AWS.S3.PutObjectRequest = {
-            Bucket: bucket,
-            Key: key,
-            Body: file,
-            //ACL: 'private',
-            ContentDisposition: 'inline',
-            ...options
-        }
-        return s3.upload(params, function (err, data) {
-            if (err) return reject(err)
-            return resolve(data)
-        })
-    })
+export function upload(s3: S3Client, bucket: string, key: string, file: any, options = {}) {
+    const params: PutObjectCommandInput = {
+        Bucket: bucket,
+        Key: key,
+        Body: file,
+        //ACL: 'private',
+        ContentDisposition: 'inline',
+        ...options,
+    }
+    return s3.send(new PutObjectCommand(params))
 }
 
-export function signedURL(s3: AWS.S3, bucket: string, key: string) {
-    return new Promise((resolve, reject) => {
-        const params = {
-            Bucket: bucket,
-            Key: key
-        }
-        s3.getSignedUrl('getObject', params, (err, url) => {
-            if (err) return reject(err)
-            resolve(url)
-        })
+export function signedURL(s3: S3Client, bucket: string, key: string, expiresIn = 900) {
+    const command = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
     })
+    return getSignedUrl(s3, command, { expiresIn })
 }
